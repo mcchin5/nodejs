@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Convert JSON Data to HTML Table</title>
+    <style>
+        th,
+        td,
+        p,
+        input {
+            font: 14px Verdana;
+        }
+
+        table,
+        th,
+        td {
+            border: solid 1px rgb(159, 159, 159);
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+        }
+
+        th {
+            font-weight: bold;
+            background-color: #d6fad6;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e5e0fc;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #fce4f8;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import dataitemlist from "./itemlist.json" assert { type: "json" };
+        // console.log(dataitemlist);
+        CreateFromJson(dataitemlist);
+        // import datachecklist from "./chceklist.json" assert { type: "json" };
+        // console.log(datachecklist);
+    </script>
+
+    <p id="showData"></p>
+
+    <input type="button" onclick="CreateOutstandingList()" value="Show Outstanding" />
+    <p>Outstanding list:</p>
+    <p id="showOutstanding"></p>
+
+</body>
+
+<script>
+    function CreateFromJson(dataitemlist) {
+        var itemtable = dataitemlist;
+        // console.log(dataitemlist);
+
+        // var table = [
+        //     {
+        //         "ID": "1",
+        //         "Item": "item 1",
+        //         "Link": "link 1",
+        //         "url":"https://example.com"
+        //     },
+        //     {
+        //         "ID": "2",
+        //         "Item": "item 2",
+        //         "Link": "link 2",
+        //         "url":"https://example.com"
+        //     },
+        //     {
+        //         "ID": "3",
+        //         "Item": "item 3",
+        //         "Link": "link 3",
+        //         "url":"https://example.com"
+        //     },
+        //     {
+        //         "ID": "4",
+        //         "Item": "item 4",    
+        //         "Link": "",
+        //         "url":""
+        //     }
+        // ]
+
+        // EXTRACT VALUE FOR HTML HEADER. 
+        // ('ID', 'Item', 'Link' and 'url')
+        var col = [];
+        col.push("Check"); // check box
+        for (var i = 0; i < itemtable.length; i++) {
+            for (var key in itemtable[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+        }
+
+        // CREATE DYNAMIC TABLE.
+        var table = document.createElement("table");
+        table.setAttribute("id", "itemlist");
+
+        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+        var tr = table.insertRow(-1);                   // TABLE ROW.
+
+        for (var i = 0; i < col.length; i++) {
+            var th = document.createElement("th");      // TABLE HEADER.
+            th.innerHTML = col[i];
+            tr.appendChild(th);
+        }
+
+        // ADD JSON DATA TO THE TABLE AS ROWS.
+        for (var i = 0; i < itemtable.length; i++) {
+
+            tr = table.insertRow(-1);
+            item_id = itemtable[i][col[1]];
+            output = '</label><input type=checkbox id=check'.concat(item_id, ' onclick=checkFunction(this.value) value=', item_id, '>');
+            // output = '<label for='.concat(item_id, '></label><input type=checkbox id=',item_id,' value=',item_id,'>');
+            // tr.insertCell(-1).innerHTML = '<label for=item_id></label><input type=checkbox id=item_id value=item_id>';
+            tr.insertCell(-1).innerHTML = output;
+            for (var j = 1; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = itemtable[i][col[j]];
+            }
+        }
+
+        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+        var divContainer = document.getElementById("showData");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);
+    }
+</script>
+
+<script>
+
+    function CreateOutstandingList() {
+
+        // ADD TABLE DATA TO THE LIST AS LINES.
+        var output = document.createElement("p");
+        output.setAttribute("id", "outstandinglist");
+        ttab = document.getElementById("itemlist");
+        trow = ttab.tBodies[0].rows.length;
+        content = "";
+        for (var i = 1; i < trow; i++) {
+            document.getElementById('check'.concat(i)).checked=false;
+            line = '<p id='.concat(ttab.rows[i].cells[1].innerHTML,' style=display:block>', ttab.rows[i].cells[2].innerHTML, ' <a href=',ttab.rows[i].cells[4].innerHTML,'>',ttab.rows[i].cells[3].innerHTML,'</a></p>');
+            content = content.concat(line);
+            // console.log(content);
+        }
+
+        // FINALLY ADD THE NEWLY CREATED P TAG INTO A CONTAINER.
+        output.innerHTML = content;
+        var divContainer = document.getElementById("showOutstanding");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(output);
+    }
+
+</script>
+
+<script>
+    function checkFunction(select) {
+        var checkBox = document.getElementById(select).style.display;
+        var text = document.getElementById(select);
+        if (checkBox == "none") {
+            text.style.display = "block";
+        } else {
+            text.style.display = "none";
+        }
+    }
+</script>
+
+</html>
